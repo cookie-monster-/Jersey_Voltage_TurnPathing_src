@@ -8,7 +8,7 @@ public class Main {
 	// Get everything set up
 	
 	public static void main(String[] args){
-	    String filename = "turn360Path1";
+	    String filename = "turn360Path3";
 	    String filepath = "C:/Users/Drew/Desktop/"+filename+".txt";
 		double totalDegrees = 360;
 		double acceleration = 6;
@@ -58,8 +58,12 @@ public class Main {
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
 				radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
-				x+=Math.sin(radians)*(posNow-posLast);
-				y+=Math.cos(radians)*(posNow-posLast);
+				//x+=Math.sin(radians)*(posNow-posLast);
+				//y+=Math.cos(radians)*(posNow-posLast);
+				
+				//http://rossum.sourceforge.net/papers/CalculationsForRobotics/CirclePath.htm
+				x=-wheelbase/24 + wheelbase/2*Math.sin(0.0)+wheelbase/2*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+0.0);
+				y=0.0 + wheelbase/2*Math.cos(0.0)+wheelbase/2*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+0.0);
 
 				velLast = velNow;
 				posLast = posNow;
