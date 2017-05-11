@@ -9,7 +9,7 @@ public class Main {
 	
 	public static void main(String[] args){
 	    String filename = "turn90Path";
-	    String filepath = "C:/Users/frc4587/Desktop/"+filename+".txt";
+	    String filepath = "C:/Users/Drew/Desktop/TurnPaths/"+filename+".txt";
 		double totalDegrees = 90;
 		double acceleration = 6;
 		double wheelbase = 26.5;
@@ -34,6 +34,7 @@ public class Main {
 			totalTime+=timeStep;
 		}
 		lineNum = totalTime / timeStep + 1;// +1 = line of 0's
+		System.out.println("dist: "+totalDistance+" time: "+totalTime+" lineNum: "+lineNum+"\n");
 		FileWriter m_writer;
 	    try {
 			m_writer = new FileWriter(filepath, false);
@@ -48,13 +49,30 @@ public class Main {
 	    y=0.0;
 		for(int line = 0;line < lineNum;line++){
 			if(line != 0){
-				if (line<(lineNum-1)/2){
+				if(lineNum%2==0){
+					if (line<lineNum/2){
+						acc=acceleration;
+					}else if(line>lineNum/2){
+						acc=-acceleration;
+					}else{
+						acc=-500;
+					}
+				}else{
+					if(line==lineNum/2+0.5){
+						acc=-7.45;
+					}else if (line<lineNum/2){
+						acc=acceleration;
+					}else{//line>lineNum
+						acc=-acceleration;
+					}
+				}
+				/*if (line<(lineNum-1)/2){
 					acc=acceleration;
 				}else if(line>(lineNum-1)/2){
 					acc=-acceleration;
 				}else{
 					acc=3;
-				}
+				}*/
 				velNow = velLast + acc * timeStep;
 				posNow = posLast + (velLast + velNow)/2 * timeStep;
 				radians = posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
@@ -72,6 +90,12 @@ public class Main {
 			    if(m_writer != null){try{
 						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
 					}catch(Exception e){}}
+
+				if(line+1==lineNum){//last one
+					System.out.println("left side\n");
+					System.out.println("posNow: "+posNow+" endDegrees: "+radians*180/Math.PI+"\n");
+					System.out.println("posError: "+(totalDistance-Math.abs(posNow))+" degreesError: "+(totalDegrees-radians*180/Math.PI)+"\n");
+				}
 			}else{
 				 if(m_writer != null){try{
 						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
@@ -85,29 +109,45 @@ public class Main {
 		velLast=0.0;
 		for(int line = 0;line < lineNum;line++){
 			if(line != 0){
-			if (line<lineNum/2){
-				acc=-acceleration;
-			}else if(line>lineNum/2){
-				acc=acceleration;
-			}else{
-				acc=0;
-			}
-			velNow = velLast + acc * timeStep;
-			posNow = posLast + (velLast + velNow)/2 * timeStep;
-			radians = -posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
-			//x+=Math.sin(radians)*(posNow-posLast);
-			//y+=Math.cos(radians)*(posNow-posLast);
-
-			double startAngle = Math.PI/2;//Math.PI/2;
-			x=wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-			y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
-
-			velLast = velNow;
-			posLast = posNow;
-			
-		    if(m_writer != null){try{
-					m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
-				}catch(Exception e){}}
+				if(lineNum%2==0){
+					if (line<lineNum/2){
+						acc=-acceleration;
+					}else if(line>lineNum/2){
+						acc=acceleration;
+					}else{
+						acc=-500;
+					}
+				}else{
+					if(line==lineNum/2+0.5){
+						acc=7.45;
+					}else if (line<lineNum/2){
+						acc=-acceleration;
+					}else{//line>lineNum
+						acc=acceleration;
+					}
+				}
+				velNow = velLast + acc * timeStep;
+				posNow = posLast + (velLast + velNow)/2 * timeStep;
+				radians = -posNow*24/wheelbase;//360/(wheelbase*Math.PI)/4.77464829275769;//magic num??????
+				//x+=Math.sin(radians)*(posNow-posLast);
+				//y+=Math.cos(radians)*(posNow-posLast);
+	
+				double startAngle = Math.PI/2;//Math.PI/2;
+				x=wheelbase/24 - wheelbase/24*Math.sin(startAngle)+wheelbase/24*Math.sin((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+				y=0.0 - wheelbase/24*Math.cos(startAngle)+wheelbase/24*Math.cos((radians/(line*0.02-0.0))*(line*0.02-0.0)+startAngle);
+	
+				velLast = velNow;
+				posLast = posNow;
+				
+			    if(m_writer != null){try{
+						m_writer.write(posNow + " "+velNow+" "+(int)acc+" 0 "+radians+" "+timeStep+" "+x+" "+y+"\n");// jerk, x, y = 0
+					}catch(Exception e){}}
+	
+				if(line+1==lineNum){//last one
+					System.out.println("right side\n");
+					System.out.println("posNow: "+posNow+" endDegrees: "+radians*180/Math.PI+"\n");
+					System.out.println("posError: "+(totalDistance-Math.abs(posNow))+" degreesError: "+(totalDegrees-radians*180/Math.PI)+"\n");
+				}
 			}else{
 				 if(m_writer != null){try{
 						m_writer.write("0 0 0 0 0 "+timeStep+" "+x+" "+y+"\n");//first line 0 everything
